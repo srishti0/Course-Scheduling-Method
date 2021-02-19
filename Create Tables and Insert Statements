@@ -1,0 +1,282 @@
+drop table T_wait_list cascade constraint;
+drop table T_time_block cascade constraint;
+drop table T_student_permission cascade constraint;
+drop table T_student cascade constraint;
+drop table T_section cascade constraint;
+drop table T_Schedule cascade constraint;
+drop table T_registration cascade constraint;
+drop table T_program cascade constraint;
+drop table T_prerequisite cascade constraint;
+drop table T_instructor_preference cascade constraint;
+drop table T_instructor_course cascade constraint;
+drop table T_instructor constraint;
+drop table T_Department cascade constraint;
+drop table T_course_load cascade constraint;
+drop table T_course cascade constraint;
+drop table T_classroom cascade constraint
+drop table T_building cascade constraint;
+
+create table T_building(
+building_id int,
+building_name varchar(100),
+primary key (building_id)
+);
+
+create table T_classroom(
+classroom_id int,
+classroom_name varchar(100),
+number_of_seats int,
+c_room_type int,
+building_id int,
+primary key (classroom_id),
+foreign key (building_id) references T_building
+);
+create table T_course(
+course_id int,
+course_name varchar(100),
+number_of_credits int,
+grading_formats  varchar(50),
+course_required int,
+course_room_type int,
+number_of_sections int,
+section_size number,
+status int,
+program_id int,
+prerequisite_id int,
+primary key(course_id),
+foreign key (program_id) references T_program
+);
+
+create table T_course_load(
+course_load_id int,
+inst_id int,
+number_of_courses_to_teach int,
+course_assigned  int,
+semester varchar(100),
+sem_year number,
+primary key (course_load_id),
+foreign key (inst_id) references T_instructor(inst_id)
+);
+
+create table T_Department(
+dept_id int,
+dept_name varchar(100),
+primary key (dept_id)
+);
+create table T_Instructor(
+inst_id int,
+inst_name varchar(100),
+inst_type varchar(100),
+dept_id int,
+primary key(inst_id),
+foreign key (dept_id) references T_Department(dept_id)
+);
+
+create table T_instructor_course(
+instructor_id int,
+course_id int,
+number_of_sections number,
+semester varchar(100),
+sem_year number,
+primary key (inst_id,course_id),
+foreign key (instructor_id) references T_instructor,
+foreign key (course_id) references T_course);
+
+create table T_instructor_preference(
+inst_id int,
+inst_not_available_days varchar(50),
+primary key(inst_id),
+foreign key (inst_id) references T_instructor(inst_id)
+);
+create table T_prerequisite(
+prerequisite_id int,
+course_id int,
+primary key (prerequisite_id),
+foreign key(course_id) references t_course(course_id)
+);
+create table T_Program(
+prog_id int,
+dept_id int,
+prog_name varchar(100),
+prog_type int,
+primary key (prog_id),
+foreign key(dept_id) references T_Department
+);
+
+create table T_registration(
+student_id int,
+course_id int,
+section_id int,
+grade varchar2(50),
+registeration_status int,
+primary key (student_id,course_id),
+foreign key (student_id) references T_student,
+foreign key(course_id) references T_course
+);
+
+create table T_schedule(
+schedule_id int,
+time_block_id int,
+course_id int,
+section_id int,
+inst_id int,
+sem_year number,
+semester varchar(100),
+section_size number,
+classroom_id int,
+number_of_scheduled_section int,
+wait_list int,
+status int,
+primary key(schedule_id),
+foreign key(course_id) references T_course(course_id),
+foreign key(inst_id) references T_instructor(inst_id),
+foreign key(classroom_id) references T_classroom(classroom_id),
+foreign key(time_block_id) references T_time_block(time_block_id)
+);
+
+
+create table T_section(
+section_id int primary key,
+course_id int,
+status int,
+foreign key (course_id) references T_course);
+
+
+
+create table T_student(
+student_id int,
+student__name varchar(100),
+program_id int,
+primary key(student_id),
+foreign key(program_id) references T_program);
+
+create table T_student_permission(
+student_id int,
+schedule_id int,
+type_of_permission int,
+primary key (student_id,schedule_id),
+foreign key(student_id) references T_student,
+foreign key(schedule_id) references T_schedule);
+
+create table T_time_block(
+time_block_id int,
+start_time interval day to second,
+classroom_id int,
+length_of_class interval day to second,
+end_time  interval day to second,
+day_1 int,
+day_2 int,
+section_id int,
+primary key(time_block_id),
+foreign key(classroom_id) references T_classroom(classroom_id));
+
+
+create table T_wait_list(
+wait_list_id int,
+student_id int,
+schedule_id int,
+position_of_student int,
+primary key (wait_list_id),
+foreign key(student_id) references T_student,
+foreign key(schedule_id) references T_schedule);
+
+insert into T_Building values(100,'ITE building');
+insert into T_Building values(200,'physics building');
+insert into T_Building values(300,'public policy building');
+insert into T_Building values(400,' performing arts building');
+insert into T_Building values(500,'Sherman Hall');
+
+insert into T_classroom values(201,'PHY201',50,0,200);
+insert into T_classroom values(202,'ITE231',20,0,100);
+insert into T_classroom values(203,'ITE203',35,1,100);
+insert into T_classroom values(204,'POLY204',45,1,300);
+insert into T_classroom values(205,'PA2015',60,0,400);
+insert into T_classroom values(206,'SH206',40,0,500);
+
+insert into T_course values(1001,'Operating Systems',3,'A,B,C,D,pass',1,1,3,30,1,1,11);
+insert into T_course values(1002,'Distributed Systems',3,'A,B,C,D,pass',1,0,2,35,1,3,1000);
+insert into T_course values(1003,'Computer Networks',2,'A,B,C,D,pass',0,0,3,35,1,6,1003);
+insert into T_course values(1004,'Management Information Systems',2,'A,B,C,D,pass',1,1,3,40,0,3,2);
+insert into T_course values(1005,'Design Algorithm Analysis',3,'A,B,C,D,pass',1,0,3,40,0,7,1001);
+insert into T_course values(1006,'Project Management',2,'A,B,C,D,pass',0,1,3,30,1,3,1006);
+
+insert into T_course_load values (1,500,2,'Fall',2019);
+insert into T_course_load values(2,501,1,'Fall',2019);
+insert into T_course_load values(3,502,1,'Fall',2019);
+insert into T_course_load values(4,503,2,'Fall',2019);
+insert into T_course_load values(5,504,1,'Spring',2019);
+
+insert into T_Department values(1,'Information Systems');
+insert into T_Department values(2,'Computer Science');
+insert into T_Department values(3,'Human Centered Computing');
+insert into T_Department values(4,'Data Science');
+insert into T_Department values(5,'Cybersecurity');
+
+insert into T_instructor values(500,'Dr Zhiyuan Chen','Fulltime',1);
+insert into T_instructor values(501,'Prof Sisi Duan','Fulltime',1);
+insert into T_instructor values(502,'Dr David Chapman','Fulltime',2);
+insert into T_instructor values(503,'Dr John Mayers','Parttime',4);
+insert into T_instructor values(504,'Dr Ergun Sim Sec','Fulltime',5);
+
+insert into T_instructor_course values(500,1001,3,'Fall',2019);
+insert into T_instuctor_course values(501,1002,2,'Fall',2019);
+insert into T_instructor_course values(502,1003,3,'Fall',2019);
+insert into T_instructor_course values(503,1004,3,'Fall',2019);
+insert into T_instructor_course values(504,1005,3,'Spring',2020);
+
+insert into T_instructor_preference values(500,'saturday,sunday');
+insert into T_instructor_preference values(501,'saturday,sunday');
+insert into T_instructor_preference values(502,'wednesday,sunday');
+insert into T_instructor_preference values(503,'wednesday,sunday');
+insert into T_instructor_preference values(504,'friday,sunday');
+
+insert into T_prerequisite values(1000,1001);
+insert into T_prerequisite values(1000,1002);
+insert into T_prerequisite values(1003,1003);
+insert into T_prerequisite values(1001,1004);
+insert into T_prerequisite values(1005,1005);
+
+insert into T_Program values(1,1,'IS BS program',1);
+insert into T_Program values(2,1,'IS PHD program',3);
+insert into T_Program values(3,1,'IS MS program',2);
+insert into T_Pprogram values(4,4,'Human Centered Computing MS program',2);
+insert into T_Program values(5,3,'Data Science MS program',2);
+insert into T_Program values(6,5,'Computer Networking BS program',1);
+insert into T_Program values(7,2,'Computer Science MS program',2);
+
+insert into registration values(8001,1001,91,’A’,1);
+insert into registration values(8002,1002,92,’B’,0);
+insert into registration values(8003,1003,93,’A’,0);
+insert into registration values(8004,1004,94,’B’,1);
+insert into registration values(8005,1005,95,’A’,1);
+
+insert into T_schedule values(5001,51,1001,91,500,2019,'fall',30,201,2,5,1);
+insert into T_schedule values(5002,52,1002,92,501,2019,'fall',35,202,1,7,1);
+insert into T_schedule values(5003,53,1003,93,502,2019,'spring',35,203,1,10,1);
+insert into T_schedule values(5004,54,1004,94,503,2019,'spring',40,204,2,4,0);
+insert into T_schedule values(5005,55,1005,95,504,2019,'fall',40,206,2,6,0);
+insert into T_schedule values(5006,53,1006,91,502,2019,'spring',30,205,1,7,1);
+
+insert into T_section values (91,1001,1);
+insert into T_section values (92,1003,0);
+insert into T_section values (93,1002,1);
+insert into T_section values (94,1004,1);
+insert into T_section values (95,1005,0)
+
+insert into T_student values(8001,'Akshay',1);
+insert into T_student values(8002,'Aniket',3);
+insert into T_student values(8003,'Ninad',2);
+insert into T_student values(8004,'Nishigandha',6);
+insert into T_student values(8005,'Srushti',5);
+
+insert into T_time_block values(51,timestamp '2019-09-01 02:30:00.0',201,interval '2:30' hour to minute,1,null,66);
+insert into T_time_block values(52,timestamp '2019-09-02 02:30:00.0',202,interval '1:15' hour to minute,1,2,67);
+insert into T_time_block values(53,timestamp '2019-09-06 02:30:00.0',203,interval '2:30' hour to minute,1,3,68);
+insert into T_time_block values(54,timestamp '2019-09-10 02:30:00.0',204,interval '1:15' hour to minute,2,3,69);
+insert into T_time_block values(55,timestamp '2019-09-12 02:30:00.0',205,interval '2:30' hour to minute,3,4,70);
+
+insert into wait_list values (300,8001,5001,4);
+insert into wait_list values (301,8002,5002,6);
+insert into wait_list values (302,8003,5003,8);
+insert into wait_list values (303,8004,5004,2);
+insert into wait_list values (304,8005,5005,9);
